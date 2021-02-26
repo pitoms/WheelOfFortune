@@ -1960,5 +1960,3 @@ const getRandomWord = (maxLength = 5) => {
 
   return correctSize[index];
 };
-
-export { getRandomWord };

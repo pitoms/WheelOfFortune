@@ -1,0 +1,8 @@
+#board {
+  margin: auto;
+  width: 50%;
+  text-align: center;
+  border: 1px dashed black;
+  letter-spacing: 0.75rem;
+  font-size: 5em;
+}

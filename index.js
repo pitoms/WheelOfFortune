@@ -3,6 +3,7 @@
 // which triggers a repetitive flow of game function
 
 function driver() {
+  console.log(validAnswer("ABC___"));
   round();
 }
 
@@ -20,31 +21,84 @@ function round() {
   let answer = getRandomWord().toUpperCase();
   let displayableChars = /[^RSTLNE]/g;
   let dispStr = answer.replace(displayableChars, "_");
+
+  // Better word generation with atleast 4 underscores
+  while (!validAnswer(dispStr)) {
+    answer = getRandomWord().toUpperCase();
+    dispStr = answer.replace(displayableChars, "_");
+    console.log("Trying to find a better answer");
+  }
+
   let consonants = 3;
   let vowels = 1;
 
-  window.alert(answer);
+  let guessedLetters = new Set();
+
+  let wordGuessPrompted = false;
+
+  console.log(answer);
   document.getElementById("board").innerText = dispStr;
 
   window.addEventListener("keydown", (event) => {
-    if (event.key.toLowerCase().match(/[b-df-hj-np-tv-z]/g)) {
-      consonants--;
-    } else if (event.key.toLowerCase().match(/[aeiou]/g)) {
-      vowels--;
+    console.log(guessedLetters);
+    if (wordGuessPrompted) {
+      // Indicates stage of game is past letter guessing  prob can do this with events somehow
+      return;
     }
-    if (consonants + vowels === 1) {
-      // only accept inputs of the one that is left
-      window.alert("only one key left");
-    } else {
-      // freely accept letters
-      // if the letter is one of the underscores
-      if (answer.includes(event.key.toUpperCase()) && !dispStr.includes(event.key.toUpperCase())) {
-        displayableChars = new RegExp(`[^${displayableChars.toString().substring(3, displayableChars.toString().length - 3)}${event.key.toUpperCase()}]`, "g");
-        dispStr = answer.replace(displayableChars, "_");
-        document.getElementById("board").innerText = dispStr;
+    if (!guessedLetters.has(event.key.toLowerCase())) {
+      if (event.key.toLowerCase().match(/[b-df-hj-np-tv-z]/g)) {
+        if (consonants > 0) {
+          consonants--;
+          document.getElementById("consLeft").innerText = consonants;
+        }
+        console.log(consonants);
+      } else if (event.key.toLowerCase().match(/[aeiou]/g)) {
+        if (vowels > 0) {
+          vowels--;
+          document.getElementById("vowsLeft").innerText = vowels;
+        }
+        console.log(vowels);
+      }
+
+      guessedLetters.add(event.key.toLowerCase());
+      document.getElementById("guesses").innerText += `${event.key.toUpperCase()} `;
+
+      if (consonants + vowels == 0 && !wordGuessPrompted) {
+        if (answer == dispStr) {
+          window.alert("Win");
+          return;
+        }
+        document.getElementById("input").appendChild(document.createElement("input"));
+        wordGuessPrompted = true;
+        return;
+      } else {
+        // freely accept letters
+        // if the letter is one of the underscores
+        if (answer.includes(event.key.toUpperCase()) && !dispStr.includes(event.key.toUpperCase())) {
+          displayableChars = new RegExp(`[^${displayableChars.toString().substring(3, displayableChars.toString().length - 3)}${event.key.toUpperCase()}]`, "g");
+          dispStr = answer.replace(displayableChars, "_");
+          document.getElementById("board").innerText = dispStr;
+        }
+      }
+      if (answer == dispStr) {
+        window.alert("Win");
       }
     }
   });
 }
 
 driver();
+
+function validAnswer(dispStr) {
+  let count = 0;
+  for (let char of dispStr) {
+    if (char == "_") {
+      count++;
+    }
+  }
+  if (count >= 4) {
+    return true;
+  }
+
+  return false;
+}

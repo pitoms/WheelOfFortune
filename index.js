@@ -2,6 +2,8 @@
 // A user can start the game
 // which triggers a repetitive flow of game function
 
+let score = 0;
+
 function driver() {
   console.log(validAnswer("ABC___"));
   round();
@@ -47,6 +49,7 @@ function round() {
     console.log(guessedLetters);
     if (wordGuessPrompted) {
       // Indicates stage of game is past letter guessing  prob can do this with events somehow
+
       return;
     }
     if (!guessedLetters.has(event.key.toLowerCase())) {
@@ -56,8 +59,32 @@ function round() {
           round();
           return;
         }
-        document.getElementById("input").appendChild(document.createElement("input"));
+
+        let form = document.createElement("form");
+        form.id = "form";
+        let input = document.createElement("input");
+        input.id = "input";
+        input.type = "text";
+
+        let submit = document.createElement("input");
+        submit.id = "submit";
+        submit.type = "submit";
+
+        form.appendChild(input);
+        form.appendChild(submit);
+
+        document.getElementById("lowerBoard").appendChild(form);
         wordGuessPrompted = true;
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          if (input.value.toLowerCase() === answer.toLowerCase()) {
+            document.getElementById("board").innerText = answer;
+            window.alert("win");
+            score++;
+          } else {
+            window.alert("you lose, the word was" + ` ${answer}`);
+          }
+        });
         return;
       } else {
         if ((vowels == 0 && isVowel(event.key)) || (consonants == 0 && isConsonant(event.key))) {

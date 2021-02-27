@@ -47,6 +47,10 @@ function round() {
 
   window.addEventListener("keydown", (event) => {
     console.log(guessedLetters);
+    if (event.key.length > 1 || !event.key.toLowerCase().match(/[a-z]/g)) {
+      return;
+      // A non char keypress
+    }
     if (wordGuessPrompted) {
       // Indicates stage of game is past letter guessing  prob can do this with events somehow
 

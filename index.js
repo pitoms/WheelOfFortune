@@ -7,7 +7,9 @@ function driver() {
   round();
 }
 
-function clear() {}
+function clear() {
+  round();
+}
 
 function round() {
   // Generate underscores and show keyboard
@@ -31,8 +33,10 @@ function round() {
 
   let consonants = 3;
   let vowels = 1;
-
   let guessedLetters = new Set();
+  document.getElementById("consLeft").innerText = consonants;
+  document.getElementById("vowsLeft").innerText = vowels;
+  document.getElementById("guesses").innerText = "";
 
   let wordGuessPrompted = false;
 
@@ -46,6 +50,30 @@ function round() {
       return;
     }
     if (!guessedLetters.has(event.key.toLowerCase())) {
+      if (consonants + vowels == 0 && !wordGuessPrompted) {
+        if (answer === dispStr) {
+          window.alert("Win");
+          round();
+          return;
+        }
+        document.getElementById("input").appendChild(document.createElement("input"));
+        wordGuessPrompted = true;
+        return;
+      } else {
+        if ((vowels == 0 && isVowel(event.key)) || (consonants == 0 && isConsonant(event.key))) {
+          return;
+        }
+
+        if (answer.includes(event.key.toUpperCase()) && !dispStr.includes(event.key.toUpperCase())) {
+          displayableChars = new RegExp(`[^${displayableChars.toString().substring(3, displayableChars.toString().length - 3)}${event.key.toUpperCase()}]`, "g");
+          dispStr = answer.replace(displayableChars, "_");
+          document.getElementById("board").innerText = dispStr;
+        }
+
+        guessedLetters.add(event.key.toLowerCase());
+        document.getElementById("guesses").innerText += `${event.key.toUpperCase()} `;
+      }
+
       if (event.key.toLowerCase().match(/[b-df-hj-np-tv-z]/g)) {
         if (consonants > 0) {
           consonants--;
@@ -60,28 +88,9 @@ function round() {
         console.log(vowels);
       }
 
-      guessedLetters.add(event.key.toLowerCase());
-      document.getElementById("guesses").innerText += `${event.key.toUpperCase()} `;
-
-      if (consonants + vowels == 0 && !wordGuessPrompted) {
-        if (answer == dispStr) {
-          window.alert("Win");
-          return;
-        }
-        document.getElementById("input").appendChild(document.createElement("input"));
-        wordGuessPrompted = true;
-        return;
-      } else {
-        // freely accept letters
-        // if the letter is one of the underscores
-        if (answer.includes(event.key.toUpperCase()) && !dispStr.includes(event.key.toUpperCase())) {
-          displayableChars = new RegExp(`[^${displayableChars.toString().substring(3, displayableChars.toString().length - 3)}${event.key.toUpperCase()}]`, "g");
-          dispStr = answer.replace(displayableChars, "_");
-          document.getElementById("board").innerText = dispStr;
-        }
-      }
-      if (answer == dispStr) {
+      if (answer === dispStr) {
         window.alert("Win");
+        round();
       }
     }
   });
@@ -101,4 +110,12 @@ function validAnswer(dispStr) {
   }
 
   return false;
+}
+
+function isVowel(str) {
+  return str.toLowerCase().match(/[aeiou]/g);
+}
+
+function isConsonant(str) {
+  return str.toLowerCase().match(/[^aeiou]/g);
 }
